@@ -16,9 +16,10 @@ Collect stock related articles for sentiment analysis and price prediction
   - stock tag
   - text data from html
   - stock price percent change
-  - date
+  - date    
+
 Notice that the data for each day is independently wrapped into a data_wrapper class for independent storage.
-This makes it easier to preserve large quantities of data by date for each stock.
+This makes it easier to preserve large quantities of data by date for each stock.  
 ## To-Do
 - Clean Text
 - Develop NLP pipeline
