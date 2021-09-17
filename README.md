@@ -24,3 +24,5 @@ This makes it easier to preserve large quantities of data by date for each stock
 - Clean Text
 - Develop NLP pipeline
 - Train Regression model on Sentiment
+## Notes
+- Example implementation of Current State in main.py
