@@ -21,8 +21,13 @@ Collect stock related articles for sentiment analysis and price prediction
 Notice that the data for each day is independently wrapped into a data_wrapper class for independent storage.
 This makes it easier to preserve large quantities of data by date for each stock.  
 ## To-Do
-- Clean Text
 - Develop NLP pipeline
-- Train Regression model on Sentiment
+  - clean text data
+  - create bag of relevant words 
+    - find words correlated to changes in stock price
+  - create embedding to reduce dimension of one-hot encoded vector
+  - using spatial analysis techniques to gain a better understanding of the embedding
+  - find a good model to predict price changes from the embedding
+  - write paper
 ## Notes
 - Example implementation of Current State in main.py
