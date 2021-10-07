@@ -1,5 +1,5 @@
 # stock-webcrawl
-Collect stock related articles for sentiment analysis and price prediction
+Collect stock related articles for analysis and price prediction
 ## Requirements
 - Python (3.7.9)
 - requests
