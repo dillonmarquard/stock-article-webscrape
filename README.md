@@ -25,9 +25,9 @@ This makes it easier to preserve large quantities of data by date for each stock
   - clean text data
   - create bag of relevant words 
     - find words correlated to changes in stock price
-  - create embedding to reduce dimension of one-hot encoded vector
-  - using spatial analysis techniques to gain a better understanding of the embedding
-  - find a good model to predict price changes from the embedding
-  - write paper
+- create embedding to reduce dimension of one-hot encoded vector
+- using spatial analysis techniques to gain a better understanding of the embedding
+- find a good model to predict price changes from the embedding
+- write paper?
 ## Notes
 - Example implementation of Current State in main.py
