@@ -12,10 +12,9 @@ class Stock:
     def __init__(self,tag):
         self.tag = tag
         self.data_dict = {} # index data by date
+        self.df = pd.DataFrame()
         
     def add_data(self,date):
-        if date.weekday() > 4:
-            return
         spooder = Crawler()
         response = spooder.request(self.tag,date)
         
@@ -35,7 +34,7 @@ class Stock:
         else:
             return self.data_dict[str(date)]
 
-    def save_data(self,date=None): # save data_wrappers as rawbytes with pickle
+    def save_data(self,date=None): # save text data with pickle
         if date == None:
             for key in self.data_dict:
                 with open("{}/{}".format(self.tag,key),'wb') as f:
@@ -87,3 +86,10 @@ class Stock:
                     os.remove("{}/{}".format(self.tag,key))
                 except:
                     continue
+
+    def get_dataframe(self):
+        for key in self.data_dict.keys():
+            obj = self.data_dict[key]
+            self.data_dict[key] = [obj.date,obj.pChange,"".join(obj.data)]
+        self.df = pd.DataFrame.from_dict(self.data_dict,orient='index',columns=['Date','PercentChange','Text'])
+        return self.df
