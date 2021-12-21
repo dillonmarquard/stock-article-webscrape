@@ -3,6 +3,7 @@ import requests
 from requests_html import HTMLSession
 from datetime import date
 from bs4 import BeautifulSoup
+import re
 
 class Crawler:
     def __init__(self):
@@ -27,9 +28,16 @@ class Crawler:
 
         for a in text_arr:
             g = a.text
-            if g != "" and len(g) > 15 and g.find('›') == -1 and g.find("https://") == -1 and (g.find('.') != -1 or g.find(',') != -1):
-               data.append(g)
-        return "".join(data)
+            #if g != "" and len(g) > 15 and g.find('›') == -1 and g.find("https://") == -1 and (g.find('.') != -1 or g.find(',') != -1):
+            #   data.append(g)
+            #
+            if len(g) > 50:
+                data.append(g)
+        data = "".join(data)
+        data = re.sub('[uU].[sS].','US', data)
+        data = re.sub('[\r\n\t:]+', ' ', data)
+        data = re.sub('[^0-9a-zA-Z .-/]+', '', data)
+        return data
     
     def extract_links(self,response):
         # extracts links from html
