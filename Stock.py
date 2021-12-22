@@ -6,7 +6,7 @@ import progressbar
 
 from Crawler import Crawler
 
-blacklist = ['youtube']
+blacklist = ['youtube','bloomberg','wikipedia','wsj']
 
 class Stock:
     def __init__(self,tag):
