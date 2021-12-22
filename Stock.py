@@ -2,6 +2,7 @@ import pandas as pd
 from requests_html import HTMLSession
 from datetime import date, timedelta
 import numpy as np
+import progressbar
 
 from Crawler import Crawler
 
@@ -28,7 +29,6 @@ class Stock:
     def add_stock_data(self,date,stockpath):
         info = pd.read_csv(stockpath)
         if len(info.loc[info['Date'] == str(date)]['percent_change'].values) > 0:
-            print(np.float(info.loc[info['Date'] == str(date)]['percent_change'].values))
             self.df.loc[self.df['date'] == str(date), 'percent_change'] = np.float(info.loc[info['Date'] == str(date)]['percent_change'].values)
 
     def get_data(self,date):
@@ -45,14 +45,20 @@ class Stock:
     def add_data_range(self,date_start,date_end,stockpath=None):
         if stockpath != None:
             info = pd.read_csv(stockpath)
-        
+        widgets = [
+                ' [', progressbar.Timer(), '] ',
+                progressbar.Percentage(), ' ',
+                progressbar.Bar(),
+                ' (', progressbar.ETA(), ') ',
+            ]
+        bar = progressbar.ProgressBar((date_end-date_start).days+1,widgets=widgets).start()
         date = date_start
         while date < date_end:
             self.add_data(date)
-            print(date)
+            # print(date)
             if stockpath != None:
                 if len(info.loc[info['Date'] == str(date)]['percent_change'].values) > 0:
-                    print(np.float(info.loc[info['Date'] == str(date)]['percent_change'].values))
                     self.df.loc[self.df['date'] == str(date), 'percent_change'] = np.float(info.loc[info['Date'] == str(date)]['percent_change'].values)
             date += timedelta(days=1)
+            bar.update((date-date_start).days)
         print('done adding ${} data in range.'.format(self.tag))
