@@ -13,7 +13,7 @@ class Crawler:
         # returns html of search result
         
         if url == None: # by default finds links to relevant websites
-            url = "https://www.google.com/search?q={}+news+on%3A{}&num={}".format(tag,str(date),10) # num is the number of links google gives on the search page
+            url = "https://www.google.com/search?q={}+news+on%3A{}&num={}".format(tag,str(date),15) # num is the number of links google gives on the search page
         try: # for scraping data from relevant links
             response = self.session.get(url)
             return response
@@ -24,22 +24,19 @@ class Crawler:
         # extracts text from html
         data = []
         page = BeautifulSoup(response.text,'html.parser')
-        text_arr = page.find_all('p',text=True)
-
+        text_arr = page.find_all('p')
+        data = []
         for a in text_arr:
             g = a.text
-            #if g != "" and len(g) > 15 and g.find('›') == -1 and g.find("https://") == -1 and (g.find('.') != -1 or g.find(',') != -1):
-            #   data.append(g)
-            #
-            if len(g) > 50:
+            g = re.sub('[.]+',' ',g)
+            g = re.sub('[^a-zA-z ]+','',g)
+            g = re.sub('\s+', ' ', g)
+            if len(g.split()) > 15:
+                #print(len(g),g)
                 data.append(g)
         data = "".join(data)
-        data = re.sub('U.S.','US', data)
-        # data = re.sub('[\r\n\t:]+', ' ', data)
-        data = re.sub('[^0-9a-zA-Z .-/]+', ' ', data)
-        data = re.sub('\s+', ' ', data)
         return data
-    
+        
     def extract_links(self,response):
         # extracts links from html
         links = []

@@ -6,7 +6,7 @@ import progressbar
 
 from Crawler import Crawler
 
-blacklist = ['youtube','bloomberg','wikipedia','wsj']
+blacklist = ['youtube.com','bloomberg.com','wikipedia.org','wsj.com','sec.gov','outsiderclub.com','marketbeat.com','investing.com','ycharts.com','nasdaq.com']
 
 class Stock:
     def __init__(self,tag):
@@ -19,10 +19,10 @@ class Stock:
         
         links = spooder.extract_links(response)
         for link in links:
-            if sum([link.find(domain) for domain in blacklist]) != -1*len(blacklist):
+            if sum([link.find(domain) for domain in blacklist]) != -1*len(blacklist) or link in self.df['link'].to_numpy():
                 continue
             response = spooder.request(self.tag,date,link)
-            if response == None:
+            if response == None or spooder.extract_text(response) == '':
                 continue
             self.df.loc[len(self.df.index)] = [self.tag,str(date),link,pd.NA,spooder.extract_text(response)]
 
@@ -51,14 +51,14 @@ class Stock:
                 progressbar.Bar(),
                 ' (', progressbar.ETA(), ') ',
             ]
-        bar = progressbar.ProgressBar((date_end-date_start).days+1,widgets=widgets).start()
-        date = date_start
-        while date < date_end:
-            self.add_data(date)
-            # print(date)
+        #bar = progressbar.ProgressBar((date_end-date_start).days+1,widgets=widgets).start()
+        dt = date_start
+        while dt < date_end:
+            self.add_data(dt)
+            print(dt)
             if stockpath != None:
-                if len(info.loc[info['Date'] == str(date)]['percent_change'].values) > 0:
-                    self.df.loc[self.df['date'] == str(date), 'percent_change'] = np.float(info.loc[info['Date'] == str(date)]['percent_change'].values)
-            date += timedelta(days=1)
-            bar.update((date-date_start).days)
+                if len(info.loc[info['Date'] == str(dt)]['percent_change'].values) > 0:
+                    self.df.loc[self.df['date'] == str(dt), 'percent_change'] = np.float(info.loc[info['Date'] == str(dt)]['percent_change'].values)
+            dt += timedelta(days=1)
+            #bar.update((dt-date_start).days)
         print('done adding ${} data in range.'.format(self.tag))
