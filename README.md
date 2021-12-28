@@ -8,27 +8,25 @@ Collect stock related articles for sentiment analysis and price prediction
 - pandas
 - bs4 (BeautifulSoup)
 ## Current State
-- Collects links from first page of Google search "<stock-tag> news on:<date(YYYY-MM-DD)>"
+- Collects 15 links from first page of Google search "<stock-tag> news on:<date(YYYY-MM-DD)>" ignoring certain blacklisted sights that require auth
 - Collects html from each link
-- Parse html for text
+- Parse html for paragraph text
 - DataFrame for each stock (each row is a link)
   - tag
   - date
   - link url
   - percent change
-  - text data  
- 
+  - text data
+- Classifier to predict based on bag of relevant words
 ## To-Do
-- Clean Text
 - Develop NLP pipeline
-- Train Regression model on Sentiment
+- Vectorize words with embedding, then vectorize corpora.
+  - Use spatial analysis techniques to classify articles and their impact on market direction (binary: increase or decrease)
 ## Notes
 - Example implementation of Current State in main.py
  
 ## Suggestions
-
-Here are some ways I think you could approach the solution:
-
+  
 1. Once you have the articles related to a given stock by given dates, you could break them down into unigrams and perform frequency analysis in relation to the stock's rise or fall.  This should lead to some interesting visuals.
 
 2. A little more advanced.  You could take the above articles and their unigrams, but also combine a sentiment feature depending on whether the article is positive or negative or both.  It would be more valuable to perform sentiment analysis by each sentence in the articles and perform cumulation.
