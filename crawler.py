@@ -55,7 +55,7 @@ class APIClient:
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=chrome_options)
         self.driver.set_page_load_timeout(8)
         # recursion setup for auto-retry
-        self.MAX_DEPTH = 1
+        self.MAX_DEPTH = 3
 
         # blacklisted link patterns ie: yahoo finance
         self.link_blacklist = ['finance.yahoo','sec.gov','money.cnn','markets.businessinsider.com','google.com','marketwatch.com','github.com']
@@ -113,7 +113,7 @@ class APIClient:
             return data
         except:
             if recursion_depth <= self.MAX_DEPTH: # depth check for successive retry
-                time.sleep(1) # prevent api throttling
+                time.sleep(5) # prevent api throttling on failure
                 data = self.get_article_data(url,recursion_depth=recursion_depth+1)
             else:
                 raise MaxRecursionError
