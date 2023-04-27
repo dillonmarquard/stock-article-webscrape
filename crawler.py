@@ -41,7 +41,7 @@ class APIClient:
         chrome_options = Options()
         chrome_options.add_argument("start-maximized"); # https://stackoverflow.com/a/26283818/1689770
         chrome_options.add_argument("enable-automation"); # https://stackoverflow.com/a/43840128/1689770
-        chrome_options.add_argument("--headless"); # only if you are ACTUALLY running headless
+        # chrome_options.add_argument("--headless"); # only if you are ACTUALLY running headless
         chrome_options.add_argument("--no-sandbox"); # https://stackoverflow.com/a/50725918/1689770
         chrome_options.add_argument("--disable-dev-shm-usage"); # https://stackoverflow.com/a/50725918/1689770
         chrome_options.add_argument("--disable-browser-side-navigation"); # https://stackoverflow.com/a/49123152/1689770
@@ -76,6 +76,7 @@ class APIClient:
                 if tmpdata != None:
                     tmpdata['date'] = date
                     tmpdf = pd.concat((tmpdf,pd.DataFrame([tmpdata],columns=['date','link','title','text'])),axis=0)
+                sleep(5) # to avoid api throttle, or spam detection
             except:
                 pass # parse error, ignore fault
         return tmpdf
@@ -85,8 +86,8 @@ class APIClient:
         # Input: tag, date, num_links
         # Output: list of URLs
         url = "https://www.google.com/search?q={}+news+on%3A{}&num={}".format(tag,date,num_links)
+        res = self.get_html_from_url(url)
         try:
-            res = self.get_html_from_url(url)
             res = self.get_links(res)
         except:
             if recursion_depth <= self.MAX_DEPTH: # depth check for successive retry
