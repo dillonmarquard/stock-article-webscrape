@@ -1,14 +1,14 @@
 # stock-webcrawl
 Collect stock related articles to predict changes in price utilizing natural language processing.
 ## Requirements
-- Python (3.7.9)
+- Python (3.9.4)
 - requests
 - requests-html
 - datetime
 - pandas
 - bs4 (BeautifulSoup)
 ## Current State
-- Collects 15 links from first page of Google search "<stock-tag> news on:<date(YYYY-MM-DD)>" ignoring certain blacklisted sights that require auth
+- Collects 25 links from first page of Google search "<stock-tag> news on:<date(YYYY-MM-DD)>" ignoring certain blacklisted sights that require auth
 - Collects html from each link
 - Parse html for paragraph text
 - DataFrame for each stock (each row is a link)
