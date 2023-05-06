@@ -41,7 +41,7 @@ class APIClient:
         chrome_options = Options()
         chrome_options.add_argument("start-maximized"); # https://stackoverflow.com/a/26283818/1689770
         chrome_options.add_argument("enable-automation"); # https://stackoverflow.com/a/43840128/1689770
-        # chrome_options.add_argument("--headless"); # only if you are ACTUALLY running headless
+        chrome_options.add_argument("--headless"); # only if you are ACTUALLY running headless
         chrome_options.add_argument("--no-sandbox"); # https://stackoverflow.com/a/50725918/1689770
         chrome_options.add_argument("--disable-dev-shm-usage"); # https://stackoverflow.com/a/50725918/1689770
         chrome_options.add_argument("--disable-browser-side-navigation"); # https://stackoverflow.com/a/49123152/1689770
@@ -49,16 +49,25 @@ class APIClient:
         chrome_options.add_argument("--disable-extensions")
         chrome_options.add_argument("--dns-prefetch-disable")
         chrome_options.add_experimental_option("detach", True)
+        chrome_options.add_experimental_option("prefs", { 
+            "download_restrictions":3,"download.open_pdf_in_system_reader": False,
+            "download.prompt_for_download": True,
+            "download.default_directory": "/dev/null",
+            "plugins.always_open_pdf_externally": False })
         user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.5615.138 Safari/537.36'
         chrome_options.add_argument('user-agent={0}'.format(user_agent))
         self.chrome_driver_version = ChromeDriverManager().install()
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=chrome_options)
-        self.driver.set_page_load_timeout(8)
+
+        # default timeout for page load
+        self.driver.set_page_load_timeout(5) # 8 for consistency, 4 for speed
+
         # recursion setup for auto-retry
-        self.MAX_DEPTH = 3
+        self.MAX_DEPTH = 2
+        self.API_WAIT_SECONDS = 5
 
         # blacklisted link patterns ie: yahoo finance
-        self.link_blacklist = ['finance.yahoo','sec.gov','money.cnn','markets.businessinsider.com','google.com','marketwatch.com','github.com']
+        self.link_blacklist = ['finance.yahoo','sec.gov','money.cnn','markets.businessinsider.com','google.com','marketwatch.com','github.com','youtube.com','fintel.io']
 
         # configured lists
         self.not_found_titles = ['not*.found','404','can*.t*.find'] # all lower-case; any acceptable re pattern
@@ -67,7 +76,7 @@ class APIClient:
     
     # API
     def get_stock_data(self,tag:str,date:str,num_links:int=25):
-        tmpdf = pd.DataFrame(columns=['date','link','title','text'])
+        tmpdf = pd.DataFrame(columns=['date','tag','link','title','raw_html'])
         tmplinks = self.get_google_links(tag,date,num_links)
         
         for i in range(len(tmplinks)):
@@ -75,8 +84,9 @@ class APIClient:
                 tmpdata = self.get_article_data(tmplinks[i])
                 if tmpdata != None:
                     tmpdata['date'] = date
-                    tmpdf = pd.concat((tmpdf,pd.DataFrame([tmpdata],columns=['date','link','title','text'])),axis=0)
-                sleep(5) # to avoid api throttle, or spam detection
+                    tmpdata['tag'] = tag
+                    tmpdf = pd.concat((tmpdf,pd.DataFrame([tmpdata],columns=['date','tag','link','title','raw_html'])),axis=0)
+                time.sleep(3) # to avoid api throttle, or spam detection
             except:
                 pass # parse error, ignore fault
         return tmpdf
@@ -110,11 +120,12 @@ class APIClient:
                 raise ArticleNotFoundError
             elif max(map(lambda pattern : len(re.findall(pattern, data['title'].lower())), ['access+denied'])):
                 raise AccessDeniedError
-            data['text'] = self.get_text(html) # text data
+            data['raw_html'] = html # preserve raw format for subsequent analysis to potentially extract more data
+            # data['text'] = self.get_text_v1_0(html) # method for extracting text data from html v1.0
             return data
         except:
             if recursion_depth <= self.MAX_DEPTH: # depth check for successive retry
-                time.sleep(5) # prevent api throttling on failure
+                time.sleep(self.API_WAIT_SECONDS) # prevent api throttling on failure
                 data = self.get_article_data(url,recursion_depth=recursion_depth+1)
             else:
                 raise MaxRecursionError
@@ -132,7 +143,7 @@ class APIClient:
         
 
     # HTML Processing Helper functions
-    def get_text(self,html:str):
+    def get_text_v1_0(self,html:str):
         soup = BeautifulSoup(html, 'html.parser')
         text = ''
         for tmp in [tmp.text for tmp in soup.find_all(['a','p','h','h1','h2'])]:
@@ -155,7 +166,7 @@ class APIClient:
                 if 'https://' == tmp[0:8] and min([re.findall(pattern,tmp) == [] for pattern in self.link_blacklist]): # check for blacklisted pattern
                     links += [tmp]
             except:
-                pass # parse error, ignore faults
+                pass # parse error, ignore fault; bad data
         return links
 
     def __del__(self):
