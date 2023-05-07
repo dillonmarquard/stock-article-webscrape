@@ -83,7 +83,7 @@ class APIClient:
         self.API_WAIT_SECONDS = 5
 
         # blacklisted link patterns ie: yahoo finance
-        self.link_blacklist = ['finance.yahoo','sec.gov','money.cnn','markets.businessinsider.com','google.com','marketwatch.com','github.com','youtube.com','fintel.io','detroitnews.com','xml-sitemap']
+        self.link_blacklist = ['finance.yahoo','sec.gov','money.cnn','markets.businessinsider.com','google.com','marketwatch.com','github.com','youtube.com','fintel.io','detroitnews.com','.xml','.pdf','sitemap','.xls','.xlsx']
 
         # configured lists
         self.not_found_titles = ['not*.found','404','can*.t*.find'] # all lower-case; any acceptable re pattern
